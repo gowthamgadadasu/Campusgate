@@ -17,19 +17,22 @@ interface AuthContextType {
 }
 
 const ROLES: { role: UserRole; label: string; desc: string }[] = [
-  { role: 'technical_incharge', label: 'Technical-Event In-Charge', desc: 'Imports attendance, sets thresholds, final event decision' },
-  { role: 'proctor', label: 'Assigned Proctor / Mentor', desc: 'Inspects assigned students & submits recommendations' },
-  { role: 'verifier', label: 'Authorized Verifier', desc: 'Reviews flagged data issues & manages verification queue' },
-  { role: 'student', label: 'Student Portal (Aarav - 22CS0101)', desc: 'Views personal attendance, eligibility & event history' },
-  { role: 'admin', label: 'Institutional Admin', desc: 'Master database access, user assignments & audit log inspection' },
+  { role: 'student', label: 'Student Dashboard (Aarav - 22CS0101)', desc: 'Explore events, check attendance eligibility, apply for institutional permission' },
+  { role: 'proctor', label: 'Proctor Dashboard (Dr. Ramesh Kumar)', desc: 'Verify assigned mentee requests, inspect eligibility, submit recommendations' },
+  { role: 'technical_incharge', label: 'Technical Event In-Charge Dashboard', desc: 'Create & publish events, import attendance, final approvals & sanctions' },
+  { role: 'verifier', label: 'Authorized Verifier (Dr. Suresh Babu)', desc: 'Resolve flagged attendance discrepancies in verification queue' },
+  { role: 'admin', label: 'Institutional Admin (Registrar)', desc: 'Master records, audit log inspection, system settings' },
 ];
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [role, setRoleState] = useState<UserRole>('technical_incharge');
+  // Read stored role or default to student
+  const [role, setRoleState] = useState<UserRole>(() => {
+    const saved = localStorage.getItem('cg_active_role');
+    return (saved as UserRole) || 'student';
+  });
 
-  // Sync role-based demo user
   const getUserForRole = (r: UserRole) => {
     switch (r) {
       case 'student':
@@ -49,14 +52,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           role: 'proctor' as UserRole,
           department: 'Computer Science & Engineering',
         };
-      case 'verifier':
-        return {
-          id: 'VER-REV-01',
-          name: 'Dr. Suresh Babu',
-          email: 'suresh.babu@verifier.campus.edu',
-          role: 'verifier' as UserRole,
-          department: 'Academic Verification Cell',
-        };
       case 'technical_incharge':
         return {
           id: 'TECH-HEAD-01',
@@ -64,6 +59,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: 'ananth.techhead@campus.edu',
           role: 'technical_incharge' as UserRole,
           department: 'Technical Affairs & Hackathon Cell',
+        };
+      case 'verifier':
+        return {
+          id: 'VER-REV-01',
+          name: 'Dr. Suresh Babu',
+          email: 'suresh.babu@verifier.campus.edu',
+          role: 'verifier' as UserRole,
+          department: 'Academic Verification Cell',
         };
       case 'admin':
       default:
@@ -82,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const setRole = (newRole: UserRole) => {
     setRoleState(newRole);
     setCurrentUser(getUserForRole(newRole));
+    localStorage.setItem('cg_active_role', newRole);
   };
 
   const studentProfile = currentUser.studentRollNumber

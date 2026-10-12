@@ -32,6 +32,31 @@ export type IssueCategory =
 
 export type IssueSeverity = 'low' | 'medium' | 'high' | 'critical';
 
+export type EventCategory = 
+  | 'Hackathon'
+  | 'Workshop'
+  | 'Conference'
+  | 'Technical Competition'
+  | 'Competitive Programming'
+  | 'Paper Presentation'
+  | 'Leadership & Dev Summit'
+  | 'Industrial Visit'
+  | 'Other';
+
+export type EventStatus = 'Draft' | 'Published' | 'Closed' | 'Cancelled';
+
+export type RequestStatus =
+  | 'Draft'
+  | 'Submitted'
+  | 'Under Proctor Review'
+  | 'Returned for Correction'
+  | 'Recommended for Approval'
+  | 'Recommended for Rejection'
+  | 'Pending Final Decision'
+  | 'Approved'
+  | 'Rejected'
+  | 'Withdrawn';
+
 export interface Student {
   id: string;
   rollNumber: string;
@@ -66,7 +91,7 @@ export interface AttendanceRecord {
   dataAsOf: string; // ISO date
   importBatchId?: string;
   source: 'import' | 'manual' | 'system';
-  isFresh: boolean; // computed from freshness threshold (e.g., 30 days)
+  isFresh: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -165,24 +190,81 @@ export interface VerificationCase {
   updatedAt: string;
 }
 
+export interface EventListing {
+  id: string;
+  title: string;
+  organizer: string;
+  category: EventCategory;
+  description: string;
+  venue: string;
+  city: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  registrationDeadline: string; // YYYY-MM-DD
+  eligibilityCriteria: string;
+  requiredDocuments: string;
+  purposeAndBenefits: string;
+  externalRegistrationUrl?: string;
+  eventWebsiteUrl?: string;
+  bannerUrl?: string;
+  organizerEmail?: string;
+  organizerPhone?: string;
+  registrationFee?: string;
+  maxParticipants?: number;
+  studentInstructions?: string;
+  status: EventStatus;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface EventRequestHandoff {
-  requestId: string;
+  requestId: string; // e.g. "REQ-2026-101"
+  eventId: string;
   studentId: string;
   rollNumber: string;
   studentName: string;
+  studentDepartment: string;
+  studentYear: number;
+  studentSection: string;
+  assignedProctorId: string;
+  assignedProctorName: string;
   eventName: string;
-  eventDate: string;
-  eventCategory: string;
+  eventCategory: EventCategory;
+  eventDate: string; // or date range
+  startDate: string;
+  endDate: string;
+  venue: string;
+  city: string;
+  organizer: string;
+  purpose: string;
+  expectedBenefits: string;
+  externalRegistrationEvidence?: string;
+  externalRegistrationConfirmed: boolean;
+  supportingDocuments: Array<{ name: string; url: string }>;
+  status: RequestStatus;
   eligibility: EligibilityResult;
   verificationStatus: VerificationStatus | 'Not Required';
-  supportingDocuments: Array<{ name: string; url: string }>;
+  hasDateOverlap?: boolean;
+  dateOverlapWarning?: string;
+  
+  // Proctor Stage
   proctorRecommendation?: 'Recommended' | 'Rejected' | 'Needs Clarification';
   proctorRemarks?: string;
   proctorReviewedAt?: string;
+  proctorReviewerName?: string;
+  
+  // In-Charge Final Stage
   technicalInchargeDecision?: 'Approved' | 'Rejected' | 'Pending';
   technicalInchargeRemarks?: string;
   technicalInchargeDecidedAt?: string;
+  technicalInchargeDecisionMakerName?: string;
+  approvalReferenceNumber?: string;
+  authorizedOverride?: boolean;
+  overrideReason?: string;
+  
   createdAt: string;
+  updatedAt: string;
 }
 
 export interface AcademicRecord {
@@ -203,7 +285,7 @@ export interface AuditLogEntry {
   actorName: string;
   actorRole: UserRole;
   action: string;
-  entityType: 'student' | 'attendance' | 'verification' | 'config' | 'import';
+  entityType: 'student' | 'attendance' | 'verification' | 'config' | 'import' | 'event' | 'request';
   entityId: string;
   details: string;
   timestamp: string;
@@ -218,9 +300,12 @@ export interface SystemConfig {
 
 export interface NotificationItem {
   id: string;
+  recipientRole?: UserRole;
+  recipientStudentRoll?: string;
+  recipientProctorId?: string;
   title: string;
   message: string;
-  category: 'import' | 'verification' | 'proctor' | 'attendance';
+  category: 'import' | 'verification' | 'proctor' | 'attendance' | 'event' | 'request';
   timestamp: string;
   isRead: boolean;
   link?: string;

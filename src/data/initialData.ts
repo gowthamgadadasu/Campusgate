@@ -1289,7 +1289,7 @@ export const INITIAL_EVENT_HANDOFFS: EventRequestHandoff[] = [
     studentName: 'Aarav Sharma',
     eventName: 'Smart India Hackathon 2026 Grand Finale',
     eventDate: '2026-11-05',
-    eventCategory: 'National Technical Hackathon',
+    eventCategory: 'Hackathon',
     eligibility: {
       studentId: 'STU-001',
       rollNumber: '22CS0101',
