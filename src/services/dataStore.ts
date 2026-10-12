@@ -23,6 +23,7 @@ import {
   INITIAL_EVENT_HANDOFFS,
 } from '../data/initialData';
 import { INITIAL_EVENTS } from '../data/initialEvents';
+import { apiClient } from './apiClient';
 
 // Local storage persistent keys
 const KEYS = {
@@ -170,6 +171,41 @@ class DataStoreService {
         },
       ]);
     }
+
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        this.syncWithServer().catch(() => {});
+      }, 0);
+    }
+  }
+
+  public async syncWithServer(): Promise<void> {
+    if (typeof window === 'undefined' || typeof fetch === 'undefined') return;
+    try {
+      const [events, requests, config, students, att, auditLogs, notifs] = await Promise.all([
+        apiClient.events.list().catch(() => null),
+        apiClient.requests.list().catch(() => null),
+        apiClient.config.get().catch(() => null),
+        apiClient.attendance.listStudents().catch(() => null),
+        apiClient.attendance.getRecords().catch(() => null),
+        apiClient.auditLogs.list().catch(() => null),
+        apiClient.notifications.list().catch(() => null),
+      ]);
+
+      if (events && events.length > 0) this.set(KEYS.EVENTS, events);
+      if (requests && requests.length > 0) this.set(KEYS.EVENT_REQUESTS, requests);
+      if (config) this.set(KEYS.CONFIG, config);
+      if (students && students.length > 0) this.set(KEYS.STUDENTS, students);
+      if (att && att.length > 0) this.set(KEYS.ATTENDANCE, att);
+      if (auditLogs && auditLogs.length > 0) this.set(KEYS.AUDIT_LOGS, auditLogs);
+      if (notifs && notifs.length > 0) this.set(KEYS.NOTIFICATIONS, notifs);
+
+      if (typeof window !== 'undefined' && typeof window.dispatchEvent === 'function') {
+        window.dispatchEvent(new CustomEvent('campusgate-data-synced'));
+      }
+    } catch {
+      // Backend offline; safely fallback
+    }
   }
 
   // --- CONFIGURATION ---
@@ -190,6 +226,7 @@ class DataStoreService {
       entityId: 'SYSTEM_SETTINGS',
       details: `Threshold updated to ${updated.minimumAttendanceThreshold}%, freshness to ${updated.freshnessThresholdDays} days.`,
     });
+    apiClient.config.update(config, { 'x-user-role': actorRole }).catch(() => {});
     return updated;
   }
 
@@ -374,6 +411,7 @@ class DataStoreService {
       });
     }
 
+    apiClient.events.create(event, { 'x-user-role': authorRole, 'x-user-name': authorName }).catch(() => {});
     return event;
   }
 
@@ -394,6 +432,8 @@ class DataStoreService {
         entityId: eventId,
         details: `Event "${event.title}" status changed to ${newStatus}.`,
       });
+
+      apiClient.events.updateStatus(eventId, newStatus, { 'x-user-role': authorRole, 'x-user-name': authorName }).catch(() => {});
     }
   }
 
@@ -519,6 +559,16 @@ class DataStoreService {
       recipientProctorId: data.student.assignedProctorId,
     });
 
+    apiClient.requests.submit({
+      eventId: data.eventId,
+      studentId: data.student.id,
+      purpose: data.purpose,
+      expectedBenefits: data.expectedBenefits,
+      externalRegistrationEvidence: data.externalRegistrationEvidence,
+      externalRegistrationConfirmed: data.externalRegistrationConfirmed,
+      supportingDocuments: data.supportingDocuments,
+    }).catch(() => {});
+
     return { request: newRequest };
   }
 
@@ -565,6 +615,12 @@ class DataStoreService {
       category: 'proctor',
       recipientStudentRoll: req.rollNumber,
     });
+
+    apiClient.proctor.review(
+      requestId,
+      { recommendation, remarks, proctorName },
+      { 'x-user-role': 'proctor', 'x-user-name': proctorName }
+    ).catch(() => {});
   }
 
   public updateTechnicalInchargeDecision(
@@ -615,6 +671,12 @@ class DataStoreService {
       category: 'request',
       recipientStudentRoll: req.rollNumber,
     });
+
+    apiClient.incharge.decision(
+      requestId,
+      { decision, remarks, inchargeName, authorizedOverride, overrideReason },
+      { 'x-user-role': 'technical_incharge', 'x-user-name': inchargeName }
+    ).catch(() => {});
   }
 
   public withdrawEventRequest(requestId: string, studentName: string): boolean {
@@ -634,6 +696,8 @@ class DataStoreService {
         entityId: requestId,
         details: `Student ${studentName} withdrew event request ${requestId} for "${req.eventName}".`,
       });
+
+      apiClient.requests.withdraw(requestId, { 'x-user-name': studentName }).catch(() => {});
       return true;
     }
     return false;
@@ -773,6 +837,8 @@ class DataStoreService {
       link: 'import',
     });
 
+    apiClient.attendance.importBatch({ fileName, validRows, uploader, uploaderRole }).catch(() => {});
+
     return { batchId, importedCount };
   }
 
@@ -882,6 +948,7 @@ class DataStoreService {
     this.set(KEYS.VERIFICATIONS, INITIAL_VERIFICATION_CASES);
     this.set(KEYS.EVENT_REQUESTS, INITIAL_EVENT_HANDOFFS);
     this.set(KEYS.CONFIG, DEFAULT_CONFIG);
+    apiClient.reset().catch(() => {});
   }
 }
 
