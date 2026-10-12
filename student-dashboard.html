@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard — CampusGate</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+</head>
+<body class="cg-auth-page" style="background: var(--color-slate-50);">
+
+  <!-- Header -->
+  <header class="cg-header" role="banner">
+    <div class="cg-nav-container">
+      <a href="index.html" class="cg-logo-link" aria-label="CampusGate Homepage">
+        <svg class="cg-logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="48" height="48" rx="12" fill="#1E3A8A"/>
+          <path d="M12 36V22C12 18.6863 14.6863 16 18 16H30C33.3137 16 36 18.6863 36 22V36" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M17 36V23C17 21.3431 18.3431 20 20 20H28C29.6569 20 31 21.3431 31 23V36" stroke="#93C5FD" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 10L14 15L24 20L34 15L24 10Z" fill="#38BDF8"/>
+          <path d="M9 36H39" stroke="#E2E8F0" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <div class="cg-logo-text-group">
+          <div class="cg-logo-title"><span class="navy">Campus</span><span class="blue">Gate</span></div>
+          <span class="cg-logo-tagline">Student Portal</span>
+        </div>
+      </a>
+
+      <!-- User Chip & Switcher -->
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <select id="studentAccountSelect" class="cg-filter-select" style="font-weight: 600;">
+          <option value="24AI001">Aarav Sharma (24AI001) - 88%</option>
+          <option value="24AI002">Aditi Rao (24AI002) - 75%</option>
+          <option value="24AI003">Ananya Iyer (24AI003) - 62% (Ineligible)</option>
+          <option value="24AI030">Manish Tiwari (24AI030) - Missing Data</option>
+          <option value="24CS030">Rohit Singhania (24CS030) - Stale Data</option>
+        </select>
+        <a href="student-login.html" id="studentSignOutBtn" class="cg-btn cg-btn-outline" style="padding: 0.4rem 0.85rem; font-size: 0.825rem;">Sign Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="cg-dash-main">
+    <!-- User Profile Header -->
+    <div class="cg-dash-header">
+      <div class="cg-dash-user-info">
+        <div class="cg-dash-avatar" id="avatarLetter">A</div>
+        <div>
+          <div class="cg-dash-title">
+            <span id="studentDisplayName">Aarav Sharma</span>
+            <span class="cg-status-pill status-eligible" id="eligibilityPill">ELIGIBLE (≥75%)</span>
+          </div>
+          <div class="cg-dash-subtitle" id="studentMeta">
+            Roll No: 24AI001 &bull; Dept: Artificial Intelligence &bull; Year: II / A &bull; Proctor: Dr. Rajesh Kumar
+          </div>
+        </div>
+      </div>
+      <div>
+        <button class="cg-btn cg-btn-primary" id="openSubmitModalBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          Submit Event Request
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="cg-stats-grid">
+      <!-- Attendance % Card -->
+      <div class="cg-stat-card">
+        <div class="cg-stat-card-header">
+          <span class="cg-stat-label">Attendance Percentage</span>
+          <div class="cg-stat-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+        </div>
+        <div class="cg-stat-value" id="attendanceVal">88.0%</div>
+        <div class="cg-stat-subtext" id="attendanceDetail">88 Attended / 100 Conducted</div>
+      </div>
+
+      <!-- Eligibility Threshold Card -->
+      <div class="cg-stat-card">
+        <div class="cg-stat-card-header">
+          <span class="cg-stat-label">Required Threshold</span>
+          <div class="cg-stat-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+        <div class="cg-stat-value">75.0%</div>
+        <div class="cg-stat-subtext" id="freshnessDetail">Data as of: 2026-10-10</div>
+      </div>
+
+      <!-- Submitted Requests Card -->
+      <div class="cg-stat-card">
+        <div class="cg-stat-card-header">
+          <span class="cg-stat-label">Total Requests</span>
+          <div class="cg-stat-icon-wrapper">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+        </div>
+        <div class="cg-stat-value" id="totalRequestsVal">2</div>
+        <div class="cg-stat-subtext">Across technical competitions</div>
+      </div>
+
+      <!-- Approved Events Card -->
+      <div class="cg-stat-card">
+        <div class="cg-stat-card-header">
+          <span class="cg-stat-label">Approved ODs</span>
+          <div class="cg-stat-icon-wrapper" style="color: #16a34a; background: #dcfce7;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+        </div>
+        <div class="cg-stat-value" id="approvedVal" style="color: #16a34a;">1</div>
+        <div class="cg-stat-subtext">Official OD clearance granted</div>
+      </div>
+    </div>
+
+    <!-- Published Technical Events Explorer Card (10 Events) -->
+    <div class="cg-section-card" id="eventsExplorerCard">
+      <div class="cg-section-card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+        <div class="cg-section-card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Explore Published Technical Events & Hackathons (10 Available)
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <input type="text" id="eventSearchInput" class="cg-filter-input" placeholder="Search title, organizer, city..." style="min-width: 220px; font-size: 0.825rem;">
+          <select id="eventCategoryFilter" class="cg-filter-select" style="font-size: 0.825rem;">
+            <option value="ALL">All Categories</option>
+            <option value="Hackathon">Hackathon</option>
+            <option value="Technical Competition">Technical Competition</option>
+            <option value="Conference">Conference</option>
+            <option value="Workshop">Workshop</option>
+            <option value="Industrial Visit">Industrial Visit</option>
+          </select>
+        </div>
+      </div>
+      <div style="padding: 1.25rem 1.75rem;">
+        <div id="eventsGridContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+          <!-- Dynamically populated from EVENTS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Requests Table Card -->
+    <div class="cg-section-card">
+      <div class="cg-section-card-header">
+        <div class="cg-section-card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+          My Technical Event Requests & Approval Tracking
+        </div>
+      </div>
+      <div class="cg-table-wrapper">
+        <table class="cg-table">
+          <thead>
+            <tr>
+              <th>Reference #</th>
+              <th>Event Title</th>
+              <th>Category</th>
+              <th>Dates</th>
+              <th>Status</th>
+              <th>Proctor Recommendation</th>
+              <th>Final Remarks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="studentRequestsTableBody">
+            <!-- Populated via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Submit Event Request Modal -->
+  <div class="cg-modal-backdrop" id="requestModal" role="dialog" aria-modal="true">
+    <div class="cg-modal" style="max-width: 650px;">
+      <div class="cg-modal-header">
+        <h3 class="cg-modal-title">Submit Technical Event Request</h3>
+        <button class="cg-modal-close" id="closeSubmitModalBtn">&times;</button>
+      </div>
+
+      <div id="overlapWarningBanner" style="display: none; padding: 0.75rem 1rem; border-radius: 6px; background: #fef3c7; color: #92400e; font-size: 0.85rem; margin-bottom: 1rem;">
+        ⚠️ <strong>Warning:</strong> Selected dates overlap with an existing event request! It will be flagged for review.
+      </div>
+
+      <form id="eventSubmitForm">
+        <div class="cg-form-row">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Event Title *</label>
+            <input type="text" id="formTitle" class="cg-input" placeholder="e.g. ACM-ICPC Regional Finale" required>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">Organizer Name *</label>
+            <input type="text" id="formOrganizer" class="cg-input" placeholder="e.g. IIT Madras / ACM" required>
+          </div>
+        </div>
+
+        <div class="cg-form-row">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Category *</label>
+            <select id="formCategory" class="cg-input" required>
+              <option value="Hackathon">Hackathon</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Conference">Conference</option>
+              <option value="Technical Competition">Technical Competition</option>
+              <option value="Industrial Visit">Industrial Visit</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">Venue & City *</label>
+            <input type="text" id="formVenue" class="cg-input" placeholder="e.g. Research Park, Bengaluru" required>
+          </div>
+        </div>
+
+        <div class="cg-form-row">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Start Date *</label>
+            <input type="date" id="formStartDate" class="cg-input" required>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">End Date *</label>
+            <input type="date" id="formEndDate" class="cg-input" required>
+          </div>
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Event / Registration URL</label>
+          <input type="url" id="formUrl" class="cg-input" placeholder="https://events.example.com">
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Purpose & Expected Technical Benefit *</label>
+          <textarea id="formPurpose" class="cg-input" rows="3" placeholder="Describe the academic motivation and technical benefits..." required></textarea>
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Supporting Document URL / Link</label>
+          <input type="url" id="formDoc" class="cg-input" placeholder="https://drive.google.com/registration-slip.pdf">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" class="cg-btn cg-btn-outline" id="saveDraftBtn">Save as Draft</button>
+          <button type="submit" class="cg-btn cg-btn-primary">Submit for Proctor Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Timeline Audit History Modal -->
+  <div class="cg-modal-backdrop" id="timelineModal" role="dialog" aria-modal="true">
+    <div class="cg-modal" style="max-width: 550px;">
+      <div class="cg-modal-header">
+        <h3 class="cg-modal-title">Request History & Audit Trail</h3>
+        <button class="cg-modal-close" id="closeTimelineBtn">&times;</button>
+      </div>
+      <div id="timelineContainer" class="cg-timeline">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { STUDENTS, PROCTORS, EVENTS, REQUESTS_DATA } from "./src/seed/seed-data.js";
+    import { validateRequestForm } from "./src/services/request-service.js";
+
+    // 1. Initialize Persistent Local Store for Cross-Dashboard Reactivity
+    let localRequests = JSON.parse(localStorage.getItem("campusgate_event_requests") || "null");
+    if (!localRequests || localRequests.length < 5) {
+      localRequests = REQUESTS_DATA.map(r => ({
+        id: r.id,
+        ref: r.ref,
+        studentRoll: r.studentRoll,
+        studentName: r.studentName,
+        title: r.title,
+        category: r.category,
+        organizer: r.organizer,
+        venue: r.venue,
+        city: r.city,
+        startDate: r.startDate,
+        endDate: r.endDate,
+        status: r.status,
+        proctorRec: r.proctorRec,
+        proctorRem: r.proctorRem,
+        finalDecision: r.inchargeDecision || r.finalDecision,
+        finalRemarks: r.inchargeRem || (r.status === "Approved" ? "Official OD clearance granted" : (r.status === "Rejected" ? "Request rejected due to low attendance" : "Under Proctor Review")),
+        hasOverlaps: !!r.hasOverlaps,
+        history: [
+          { title: "Submitted", by: `${r.studentName} (Student)`, time: "10-10-2026", note: "Institutional permission request submitted" },
+          ...(r.proctorRec ? [{ title: "Proctor Review", by: "Assigned Proctor", time: "11-10-2026", note: r.proctorRem || `Recommended: ${r.proctorRec}` }] : []),
+          ...(r.inchargeDecision ? [{ title: "Final Decision", by: "Prof. Vikram Seth (In-Charge)", time: "12-10-2026", note: r.inchargeRem || r.status }] : [])
+        ]
+      }));
+      localStorage.setItem("campusgate_event_requests", JSON.stringify(localRequests));
+    }
+
+    // 2. DOM Elements
+    const accountSelect = document.getElementById("studentAccountSelect");
+    const avatarLetter = document.getElementById("avatarLetter");
+    const studentDisplayName = document.getElementById("studentDisplayName");
+    const eligibilityPill = document.getElementById("eligibilityPill");
+    const studentMeta = document.getElementById("studentMeta");
+    const attendanceVal = document.getElementById("attendanceVal");
+    const attendanceDetail = document.getElementById("attendanceDetail");
+    const freshnessDetail = document.getElementById("freshnessDetail");
+    const totalRequestsVal = document.getElementById("totalRequestsVal");
+    const approvedVal = document.getElementById("approvedVal");
+    const tableBody = document.getElementById("studentRequestsTableBody");
+
+    const eventsGridContainer = document.getElementById("eventsGridContainer");
+    const eventSearchInput = document.getElementById("eventSearchInput");
+    const eventCategoryFilter = document.getElementById("eventCategoryFilter");
+
+    const requestModal = document.getElementById("requestModal");
+    const openSubmitModalBtn = document.getElementById("openSubmitModalBtn");
+    const closeSubmitModalBtn = document.getElementById("closeSubmitModalBtn");
+    const timelineModal = document.getElementById("timelineModal");
+    const closeTimelineBtn = document.getElementById("closeTimelineBtn");
+    const timelineContainer = document.getElementById("timelineContainer");
+    const studentSignOutBtn = document.getElementById("studentSignOutBtn");
+
+    // 3. User Session & Account Switcher Setup
+    const storedUser = JSON.parse(localStorage.getItem("campusgate_current_user") || "null");
+    
+    // Populate dropdown with all students
+    accountSelect.innerHTML = STUDENTS.map(s => {
+      let pctStr = "N/A";
+      if (!s.missingAttendance && s.conducted > 0) {
+        pctStr = `${((s.attended / s.conducted) * 100).toFixed(0)}%`;
+      }
+      return `<option value="${s.roll}">${s.name} (${s.roll}) — ${pctStr}${s.missingAttendance ? ' (Missing)' : ''}</option>`;
+    }).join("");
+
+    if (storedUser && storedUser.role === "student" && storedUser.roll) {
+      const match = STUDENTS.find(s => s.roll === storedUser.roll);
+      if (match) {
+        accountSelect.value = match.roll;
+      }
+    }
+
+    if (studentSignOutBtn) {
+      studentSignOutBtn.addEventListener("click", (e) => {
+        localStorage.removeItem("campusgate_current_user");
+      });
+    }
+
+    // 4. Render Current Student Profile & Attendance
+    function renderCurrentStudent() {
+      const roll = accountSelect.value;
+      const student = STUDENTS.find(s => s.roll === roll) || STUDENTS[0];
+      const proctor = PROCTORS.find(p => p.uid === student.proctorId) || PROCTORS[0];
+
+      // Read configurable threshold from storage if set by In-Charge
+      const savedConfig = JSON.parse(localStorage.getItem("campusgate_attendance_rules") || "null");
+      const threshold = savedConfig?.minimumThreshold ?? 75.0;
+
+      avatarLetter.textContent = student.name[0];
+      studentDisplayName.textContent = student.name;
+      studentMeta.innerHTML = `Roll No: <strong>${student.roll}</strong> &bull; Dept: <strong>${student.dept}</strong> &bull; Sec: <strong>${student.sec}</strong> &bull; Proctor: <strong>${proctor.name}</strong> (${proctor.department})`;
+
+      let pct = "Unavailable";
+      let isElig = false;
+      let badgeClass = "status-unavailable";
+      let badgeText = "UNAVAILABLE";
+
+      if (!student.missingAttendance) {
+        if (student.conducted > 0) {
+          const val = Number(((student.attended / student.conducted) * 100).toFixed(1));
+          pct = `${val}%`;
+          if (student.isStale) {
+            badgeClass = "status-stale";
+            badgeText = "STALE DATA (Verification Flagged)";
+          } else if (val >= threshold) {
+            badgeClass = "status-eligible";
+            badgeText = `ELIGIBLE (≥${threshold}%)`;
+            isElig = true;
+          } else {
+            badgeClass = "status-ineligible";
+            badgeText = `INELIGIBLE (<${threshold}%)`;
+          }
+        }
+      }
+
+      attendanceVal.textContent = pct;
+      attendanceDetail.textContent = student.missingAttendance ? "Missing from Department File" : `${student.attended || 0} Attended / ${student.conducted || 0} Conducted`;
+      freshnessDetail.textContent = `Data as of: ${student.asOf || 'N/A'}`;
+      eligibilityPill.className = `cg-status-pill ${badgeClass}`;
+      eligibilityPill.textContent = badgeText;
+
+      // Filter student requests
+      const myRequests = localRequests.filter(r => r.studentRoll === student.roll);
+      totalRequestsVal.textContent = myRequests.length;
+      approvedVal.textContent = myRequests.filter(r => r.status === "Approved").length;
+
+      renderTable(myRequests);
+      renderEventsGrid();
+    }
+
+    // 5. Render Events Grid (10 Published Events)
+    function renderEventsGrid() {
+      const search = (eventSearchInput.value || "").toLowerCase().trim();
+      const cat = eventCategoryFilter.value;
+
+      const filtered = EVENTS.filter(e => {
+        const matchesCat = (cat === "ALL" || e.category === cat);
+        const matchesSearch = !search || 
+          e.title.toLowerCase().includes(search) || 
+          e.organizer.toLowerCase().includes(search) || 
+          e.city.toLowerCase().includes(search) || 
+          e.venue.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        eventsGridContainer.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: var(--color-slate-500); padding: 2rem;">No technical events match the selected filter.</div>`;
+        return;
+      }
+
+      eventsGridContainer.innerHTML = filtered.map(evt => `
+        <div class="cg-event-card" style="border: 1px solid var(--color-slate-200); border-radius: 8px; padding: 1.25rem; background: #ffffff; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+              <span class="cg-status-pill status-eligible" style="font-size: 0.7rem; font-weight: 700;">${evt.category}</span>
+              <span style="font-size: 0.75rem; font-weight: 600; color: var(--color-slate-500);">${evt.eventCode}</span>
+            </div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--color-slate-900); margin: 0 0 0.35rem 0; line-height: 1.3;">${evt.title}</h3>
+            <div style="font-size: 0.8rem; color: var(--color-blue-700); font-weight: 600; margin-bottom: 0.6rem;">Organized by: ${evt.organizer}</div>
+            <p style="font-size: 0.825rem; color: var(--color-slate-600); margin: 0 0 0.75rem 0; line-height: 1.45;">${evt.description}</p>
+            <div style="font-size: 0.8rem; color: var(--color-slate-600); margin-bottom: 0.25rem;">
+              📍 <strong>Venue:</strong> ${evt.venue}, ${evt.city}
+            </div>
+            <div style="font-size: 0.8rem; color: var(--color-slate-600); margin-bottom: 0.25rem;">
+              📅 <strong>Dates:</strong> ${evt.startDate} to ${evt.endDate}
+            </div>
+            <div style="font-size: 0.8rem; color: #b45309; margin-bottom: 0.6rem;">
+              ⏳ <strong>Registration Deadline:</strong> ${evt.registrationDeadline}
+            </div>
+            <div style="padding: 0.6rem; background: var(--color-slate-50); border: 1px solid var(--color-slate-100); border-radius: 6px; font-size: 0.75rem; color: var(--color-slate-700); margin-bottom: 1rem;">
+              <strong>Eligibility Criteria:</strong> ${evt.eligibilityCriteria}
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; margin-top: auto; padding-top: 0.75rem; border-top: 1px solid var(--color-slate-100);">
+            <a href="${evt.externalUrl}" target="_blank" rel="noopener noreferrer" class="cg-btn cg-btn-outline" style="flex: 1; text-align: center; padding: 0.4rem 0.5rem; font-size: 0.785rem;">Official Portal ↗</a>
+            <button type="button" class="cg-btn cg-btn-primary apply-event-btn" data-event-id="${evt.id}" style="flex: 1.5; padding: 0.4rem 0.5rem; font-size: 0.785rem;">Apply for OD</button>
+          </div>
+        </div>
+      `).join("");
+
+      // Wire Apply buttons
+      document.querySelectorAll(".apply-event-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const eventId = btn.getAttribute("data-event-id");
+          const targetEvt = EVENTS.find(e => e.id === eventId);
+          if (targetEvt) {
+            document.getElementById("formTitle").value = targetEvt.title;
+            document.getElementById("formOrganizer").value = targetEvt.organizer;
+            document.getElementById("formCategory").value = targetEvt.category;
+            document.getElementById("formVenue").value = `${targetEvt.venue}, ${targetEvt.city}`;
+            document.getElementById("formStartDate").value = targetEvt.startDate;
+            document.getElementById("formEndDate").value = targetEvt.endDate;
+            document.getElementById("formUrl").value = targetEvt.externalUrl;
+            document.getElementById("formPurpose").value = `Institutional on-duty permission request to represent university at ${targetEvt.title} (${targetEvt.category}).`;
+            checkDateOverlap();
+            requestModal.classList.add("active");
+          }
+        });
+      });
+    }
+
+    eventSearchInput.addEventListener("input", renderEventsGrid);
+    eventCategoryFilter.addEventListener("change", renderEventsGrid);
+
+    // 6. Render Student Requests Table
+    function renderTable(requests) {
+      if (requests.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-slate-400); padding: 2rem;">No event requests submitted yet. Select an event above or click '+ Submit Event Request'.</td></tr>`;
+        return;
+      }
+
+      tableBody.innerHTML = requests.map(r => {
+        let pillClass = "status-submitted";
+        if (r.status === "Approved") pillClass = "status-approved";
+        else if (r.status === "Rejected") pillClass = "status-rejected";
+        else if (r.status === "Returned for Correction") pillClass = "status-returned";
+        else if (r.status === "Draft") pillClass = "status-draft";
+        else if (r.status === "Withdrawn") pillClass = "status-withdrawn";
+
+        return `
+          <tr>
+            <td><strong>${r.ref}</strong></td>
+            <td>
+              <div style="font-weight: 600;">${r.title}</div>
+              ${r.hasOverlaps ? '<span class="cg-status-pill status-warning" style="font-size: 0.7rem; margin-top: 2px;">⚠️ Date Overlap</span>' : ''}
+            </td>
+            <td>${r.category}</td>
+            <td><small>${r.startDate} to ${r.endDate}</small></td>
+            <td><span class="cg-status-pill ${pillClass}">${r.status}</span></td>
+            <td>${r.proctorRec ? `<span style="font-weight:600;">${r.proctorRec}</span>` : '<span style="color:#94a3b8;">Pending</span>'}</td>
+            <td><small>${r.finalRemarks || 'In Progress'}</small></td>
+            <td>
+              <div style="display: flex; gap: 0.35rem;">
+                <button class="cg-btn-sm cg-btn-outline view-timeline-btn" data-id="${r.id}">Timeline</button>
+                ${r.status === "Returned for Correction" ? `<button class="cg-btn-sm cg-btn-warning edit-resubmit-btn" data-id="${r.id}">Edit</button>` : ''}
+                ${!["Approved", "Rejected", "Withdrawn"].includes(r.status) ? `<button class="cg-btn-sm cg-btn-danger withdraw-btn" data-id="${r.id}">Withdraw</button>` : ''}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      // Attach timeline click handlers
+      document.querySelectorAll(".view-timeline-btn").forEach(b => {
+        b.addEventListener("click", () => {
+          const req = localRequests.find(r => r.id === b.getAttribute("data-id"));
+          showTimeline(req);
+        });
+      });
+
+      // Attach withdraw handlers
+      document.querySelectorAll(".withdraw-btn").forEach(b => {
+        b.addEventListener("click", () => {
+          const id = b.getAttribute("data-id");
+          if (confirm("Are you sure you want to withdraw this request?")) {
+            const item = localRequests.find(r => r.id === id);
+            if (item) {
+              item.status = "Withdrawn";
+              item.finalRemarks = "Withdrawn by student";
+              item.history.push({ title: "Withdrawn", by: "Student", time: new Date().toLocaleDateString(), note: "Withdrawn by student" });
+              localStorage.setItem("campusgate_event_requests", JSON.stringify(localRequests));
+              renderCurrentStudent();
+            }
+          }
+        });
+      });
+    }
+
+    function showTimeline(req) {
+      if (!req) return;
+      timelineContainer.innerHTML = (req.history || []).map(h => `
+        <div class="cg-timeline-item">
+          <div class="cg-timeline-dot"></div>
+          <div class="cg-timeline-content">
+            <div class="cg-timeline-header">
+              <span>${h.title}</span>
+              <span class="cg-timeline-meta">${h.time}</span>
+            </div>
+            <div style="color: var(--color-blue-700); font-weight: 500;">${h.by}</div>
+            <div style="margin-top: 0.25rem; color: var(--color-slate-600);">${h.note}</div>
+          </div>
+        </div>
+      `).join("");
+      timelineModal.classList.add("active");
+    }
+
+    // Modal listeners
+    openSubmitModalBtn.addEventListener("click", () => {
+      document.getElementById("eventSubmitForm").reset();
+      overlapBanner.style.display = "none";
+      requestModal.classList.add("active");
+    });
+    closeSubmitModalBtn.addEventListener("click", () => requestModal.classList.remove("active"));
+    closeTimelineBtn.addEventListener("click", () => timelineModal.classList.remove("active"));
+    accountSelect.addEventListener("change", renderCurrentStudent);
+
+    // Live Date Overlap Checker
+    const startDateInput = document.getElementById("formStartDate");
+    const endDateInput = document.getElementById("formEndDate");
+    const overlapBanner = document.getElementById("overlapWarningBanner");
+
+    function checkDateOverlap() {
+      const s = startDateInput.value;
+      const e = endDateInput.value;
+      if (!s || !e) return;
+
+      const currentRoll = accountSelect.value;
+      const sTime = new Date(s).getTime();
+      const eTime = new Date(e).getTime();
+
+      const overlaps = localRequests.some(r => {
+        if (r.studentRoll !== currentRoll || r.status === "Withdrawn" || r.status === "Rejected") return false;
+        const exS = new Date(r.startDate).getTime();
+        const exE = new Date(r.endDate).getTime();
+        return exS <= eTime && exE >= sTime;
+      });
+
+      overlapBanner.style.display = overlaps ? "block" : "none";
+    }
+
+    startDateInput.addEventListener("change", checkDateOverlap);
+    endDateInput.addEventListener("change", checkDateOverlap);
+
+    // Submit Request
+    document.getElementById("eventSubmitForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const s = startDateInput.value;
+      const end = endDateInput.value;
+      if (new Date(end) < new Date(s)) {
+        alert("End date cannot be earlier than start date!");
+        return;
+      }
+
+      const roll = accountSelect.value;
+      const student = STUDENTS.find(st => st.roll === roll) || STUDENTS[0];
+      const hasOverlaps = overlapBanner.style.display === "block";
+
+      const newId = "req_" + Date.now();
+      const newRef = "EVT-2026-" + Math.floor(10000 + Math.random() * 90000);
+
+      let attPct = null;
+      let elig = "UNAVAILABLE";
+      if (!student.missingAttendance && student.conducted > 0) {
+        attPct = Number(((student.attended / student.conducted) * 100).toFixed(2));
+        elig = attPct >= 75 ? "ELIGIBLE" : "INELIGIBLE";
+      }
+
+      const newReq = {
+        id: newId,
+        ref: newRef,
+        studentRoll: roll,
+        studentName: student.name,
+        department: student.dept,
+        yearSection: student.sec,
+        proctorId: student.proctorId,
+        title: document.getElementById("formTitle").value,
+        organizer: document.getElementById("formOrganizer").value,
+        category: document.getElementById("formCategory").value,
+        venue: document.getElementById("formVenue").value,
+        startDate: s,
+        endDate: end,
+        url: document.getElementById("formUrl").value,
+        purpose: document.getElementById("formPurpose").value,
+        supportingDocumentUrl: document.getElementById("formDoc").value,
+        status: "Submitted",
+        hasOverlaps,
+        proctorRec: null,
+        proctorRem: "",
+        finalDecision: null,
+        finalRemarks: hasOverlaps ? "Submitted (Date overlap flagged)" : "Submitted for Proctor Review",
+        attendanceSnapshot: {
+          classesConducted: student.conducted ?? null,
+          classesAttended: student.attended ?? null,
+          attendancePercentage: attPct,
+          eligibilityStatus: elig
+        },
+        history: [
+          { title: "Submitted", by: `${student.name} (Student)`, time: new Date().toLocaleDateString(), note: "Institutional event permission request submitted." }
+        ]
+      };
+
+      localRequests.unshift(newReq);
+      localStorage.setItem("campusgate_event_requests", JSON.stringify(localRequests));
+
+      requestModal.classList.remove("active");
+      document.getElementById("eventSubmitForm").reset();
+      overlapBanner.style.display = "none";
+      alert(`Event Request ${newRef} submitted successfully!`);
+      renderCurrentStudent();
+    });
+
+    renderCurrentStudent();
+  </script>
+
+</body>
+</html>
