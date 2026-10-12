@@ -70,3 +70,78 @@ export async function getUsersByRole(role) {
   const snap = await getDocs(q);
   return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
+
+/**
+ * Real Firebase Google Sign-In Integration
+ * Uses signInWithPopup with GoogleAuthProvider.
+ * Maps signed-in user against Firestore or institutional email schema,
+ * creates/updates the user profile in Firestore, and returns profile with role.
+ */
+export async function signInWithGoogle() {
+  const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+  const { auth } = await import("../firebase-config.js");
+
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+
+  const result = await signInWithPopup(auth, provider);
+  const user = result.user;
+  const email = (user.email || "").toLowerCase();
+
+  // Check if user already exists in Firestore
+  let profile = await getUserProfile(user.uid);
+
+  if (!profile) {
+    // Try to determine role from email or defaults
+    let role = ROLES.STUDENT;
+    let rollNumber = null;
+    let department = "Artificial Intelligence";
+    let proctorId = "proctor_01";
+    let name = user.displayName || "Google User";
+
+    if (email.includes("incharge") || email.includes("vikram.seth")) {
+      role = ROLES.INCHARGE;
+      department = "Academic Affairs & Technical Events";
+    } else if (email.includes("rajesh.kumar") || email.includes("proctor_01")) {
+      role = ROLES.PROCTOR;
+      department = "AI & ECE";
+    } else if (email.includes("priya.sundaram") || email.includes("proctor_02")) {
+      role = ROLES.PROCTOR;
+      department = "CSE & MECH";
+    } else if (email.includes("proctor")) {
+      role = ROLES.PROCTOR;
+      department = "AI & ECE";
+    } else {
+      // Student role - extract roll or default to AI001
+      const rollMatch = email.match(/^(\d{2}[a-z]{2}\d{3})/i) || email.match(/^(ai\d{3})/i);
+      if (rollMatch) {
+        rollNumber = rollMatch[1].toUpperCase();
+      } else {
+        rollNumber = "24AI001";
+      }
+    }
+
+    profile = {
+      uid: user.uid,
+      name,
+      email,
+      role,
+      rollNumber,
+      department,
+      proctorId: role === ROLES.STUDENT ? proctorId : null,
+      photoURL: user.photoURL || null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      await setUserProfile(user.uid, profile);
+    } catch (saveErr) {
+      console.warn("Could not save profile to Firestore, continuing with local profile:", saveErr);
+    }
+  }
+
+  // Also save session to localStorage for immediate UI hydration
+  localStorage.setItem("campusgate_current_user", JSON.stringify(profile));
+  return profile;
+}

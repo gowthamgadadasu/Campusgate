@@ -55,6 +55,8 @@
       </div>
       <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
         <button class="cg-btn cg-btn-outline" id="exportProctorStudentsBtn">📥 Export Assigned Students (.xlsx)</button>
+        <button class="cg-btn cg-btn-outline" id="exportEligibleStudentsBtn" style="color: #16a34a; border-color: #86efac;">📥 Export Eligible (.xlsx)</button>
+        <button class="cg-btn cg-btn-outline" id="exportIneligibleStudentsBtn" style="color: #dc2626; border-color: #fca5a5;">📥 Export Ineligible (.xlsx)</button>
         <button class="cg-btn cg-btn-primary" id="exportProctorReviewsBtn">📥 Export Reviews (.xlsx)</button>
         <span class="cg-status-pill status-warning" style="font-size: 0.85rem; padding: 0.4rem 0.85rem;">
           🔒 Policy: Proctors Recommend; In-Charge Issues Final Decision
@@ -62,9 +64,9 @@
       </div>
     </div>
 
-    <!-- Stats Grid -->
+    <!-- Stats Grid (Clickable) -->
     <div class="cg-stats-grid">
-      <div class="cg-stat-card">
+      <div class="cg-stat-card cg-clickable-card" id="cardAssignedStudents" title="Click to view all assigned students" tabindex="0" role="button">
         <div class="cg-stat-card-header">
           <span class="cg-stat-label">Assigned Students</span>
           <div class="cg-stat-icon-wrapper">
@@ -72,10 +74,10 @@
           </div>
         </div>
         <div class="cg-stat-value" id="assignedCountVal">16</div>
-        <div class="cg-stat-subtext">Students under your proctorship</div>
+        <div class="cg-stat-subtext">Students under your proctorship (Click to view roster)</div>
       </div>
 
-      <div class="cg-stat-card">
+      <div class="cg-stat-card cg-clickable-card" id="cardPendingReviews" title="Click to filter pending reviews" tabindex="0" role="button">
         <div class="cg-stat-card-header">
           <span class="cg-stat-label">Pending Reviews</span>
           <div class="cg-stat-icon-wrapper" style="color: #d97706; background: #fef3c7;">
@@ -83,10 +85,10 @@
           </div>
         </div>
         <div class="cg-stat-value" id="pendingReviewsVal" style="color: #d97706;">2</div>
-        <div class="cg-stat-subtext">Awaiting recommendation</div>
+        <div class="cg-stat-subtext">Awaiting recommendation (Click to filter)</div>
       </div>
 
-      <div class="cg-stat-card">
+      <div class="cg-stat-card cg-clickable-card" id="cardIneligible" title="Click to filter attendance ineligible students" tabindex="0" role="button">
         <div class="cg-stat-card-header">
           <span class="cg-stat-label">Attendance Ineligible</span>
           <div class="cg-stat-icon-wrapper" style="color: #dc2626; background: #fee2e2;">
@@ -94,10 +96,10 @@
           </div>
         </div>
         <div class="cg-stat-value" id="ineligibleCountVal" style="color: #dc2626;">3</div>
-        <div class="cg-stat-subtext">Students below 75% threshold</div>
+        <div class="cg-stat-subtext">Students below 75% threshold (Click to inspect)</div>
       </div>
 
-      <div class="cg-stat-card">
+      <div class="cg-stat-card cg-clickable-card" id="cardReturned" title="Click to filter returned requests" tabindex="0" role="button">
         <div class="cg-stat-card-header">
           <span class="cg-stat-label">Returned for Clarification</span>
           <div class="cg-stat-icon-wrapper" style="color: #ea580c; background: #ffedd5;">
@@ -105,12 +107,43 @@
           </div>
         </div>
         <div class="cg-stat-value" id="returnedCountVal" style="color: #ea580c;">1</div>
-        <div class="cg-stat-subtext">Awaiting student resubmission</div>
+        <div class="cg-stat-subtext">Awaiting student resubmission (Click to filter)</div>
       </div>
     </div>
 
-    <!-- Pending Requests Table -->
-    <div class="cg-section-card">
+    <!-- Section 1: Event Management Module (Create, Edit, Publish/Unpublish) -->
+    <div class="cg-section-card" id="proctorEventManagementSection">
+      <div class="cg-section-card-header" style="flex-wrap: wrap; gap: 0.75rem;">
+        <div class="cg-section-card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Proctor Event Management & Catalog
+        </div>
+        <button class="cg-btn cg-btn-primary" id="openCreateEventModalBtn" style="font-size: 0.85rem; padding: 0.45rem 1rem;">
+          + Create New Event Listing
+        </button>
+      </div>
+      <div class="cg-table-wrapper">
+        <table class="cg-table">
+          <thead>
+            <tr>
+              <th>Event Code</th>
+              <th>Title & Organizer</th>
+              <th>Category</th>
+              <th>Dates</th>
+              <th>Venue</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="proctorEventsTbody">
+            <!-- Populated dynamically via script -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Section 2: Pending Requests Table -->
+    <div class="cg-section-card" id="requestsSection">
       <div class="cg-section-card-header">
         <div class="cg-section-card-title">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -135,6 +168,7 @@
           <option value="Recommended for Rejection">Recommended for Rejection</option>
           <option value="Returned for Correction">Returned for Correction</option>
         </select>
+        <button type="button" class="cg-btn cg-btn-outline" id="resetFiltersBtn" style="padding: 0.3rem 0.75rem; font-size: 0.75rem;">Reset Filters</button>
       </div>
 
       <div class="cg-table-wrapper">
@@ -158,12 +192,15 @@
       </div>
     </div>
 
-    <!-- Assigned Students Roster Card -->
-    <div class="cg-section-card">
+    <!-- Section 3: Assigned Students Roster Card -->
+    <div class="cg-section-card" id="assignedRosterSection">
       <div class="cg-section-card-header">
         <div class="cg-section-card-title">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
           My Assigned Students Roster & Freshness Status
+        </div>
+        <div style="font-size: 0.825rem; color: var(--color-slate-600);">
+          Click any row to view <strong>Detailed Student Performance</strong>
         </div>
       </div>
       <div class="cg-table-wrapper">
@@ -177,6 +214,7 @@
               <th>Attendance %</th>
               <th>Freshness Date</th>
               <th>Eligibility</th>
+              <th>Performance View</th>
             </tr>
           </thead>
           <tbody id="assignedStudentsTbody">
@@ -215,13 +253,96 @@
           <button type="button" class="cg-btn cg-btn-outline" id="cancelReviewBtn">Cancel</button>
           <button type="submit" class="cg-btn cg-btn-primary">Submit Recommendation</button>
         </div>
+  <!-- Student Detailed Performance View Modal -->
+  <div class="cg-modal-backdrop" id="studentPerformanceModal" role="dialog" aria-modal="true">
+    <div class="cg-modal" style="max-width: 620px;">
+      <div class="cg-modal-header">
+        <h3 class="cg-modal-title" id="studentPerfModalTitle">Student Performance & Eligibility Dossier</h3>
+        <button class="cg-modal-close" id="closeStudentPerfModal">&times;</button>
+      </div>
+      <div id="studentPerfModalContent" style="padding: 0.5rem 0;">
+        <!-- Dynamically rendered -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+        <button type="button" class="cg-btn cg-btn-outline" id="dismissStudentPerfModal">Close Dossier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / Edit Event Modal for Proctor -->
+  <div class="cg-modal-backdrop" id="createEventModal" role="dialog" aria-modal="true">
+    <div class="cg-modal" style="max-width: 640px;">
+      <div class="cg-modal-header">
+        <h3 class="cg-modal-title" id="eventModalTitle">Create Technical Event Listing</h3>
+        <button class="cg-modal-close" id="closeCreateEventModal">&times;</button>
+      </div>
+      <form id="proctorEventForm">
+        <input type="hidden" id="editEventId">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Event Code *</label>
+            <input type="text" id="eventCodeInput" class="cg-input" placeholder="e.g. EVT-AI-01" required>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">Category *</label>
+            <select id="eventCategorySelect" class="cg-input" required>
+              <option value="Hackathon">Hackathon</option>
+              <option value="Technical Competition">Technical Competition</option>
+              <option value="Conference">Conference</option>
+              <option value="Workshop">Workshop</option>
+              <option value="Industrial Visit">Industrial Visit</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Event Title *</label>
+          <input type="text" id="eventTitleInput" class="cg-input" placeholder="e.g. AICTE National Robotics Grand Challenge" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Organizer *</label>
+            <input type="text" id="eventOrganizerInput" class="cg-input" placeholder="e.g. AICTE & IIT Madras" required>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">City *</label>
+            <input type="text" id="eventCityInput" class="cg-input" placeholder="e.g. Chennai" required>
+          </div>
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Venue *</label>
+          <input type="text" id="eventVenueInput" class="cg-input" placeholder="e.g. IC&SR Auditorium, IIT Madras" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+          <div class="cg-form-group">
+            <label class="cg-form-label">Start Date *</label>
+            <input type="date" id="eventStartDateInput" class="cg-input" required>
+          </div>
+          <div class="cg-form-group">
+            <label class="cg-form-label">End Date *</label>
+            <input type="date" id="eventEndDateInput" class="cg-input" required>
+          </div>
+        </div>
+
+        <div class="cg-form-group">
+          <label class="cg-form-label">Description & Scope *</label>
+          <textarea id="eventDescriptionInput" class="cg-input" rows="2" placeholder="Comprehensive technical event overview..." required></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="cg-btn cg-btn-outline" id="cancelEventModalBtn">Cancel</button>
+          <button type="submit" class="cg-btn cg-btn-primary" id="saveEventSubmitBtn">Save & Publish</button>
+        </div>
       </form>
     </div>
   </div>
 
   <script type="module">
-    import { STUDENTS, PROCTORS, REQUESTS_DATA } from "./src/seed/seed-data.js";
-    import { exportAssignedStudentsXLSX, exportRequestReviewsXLSX } from "./src/services/dashboard-service.js";
+    import { STUDENTS, PROCTORS, EVENTS, REQUESTS_DATA } from "./src/seed/seed-data.js";
+    import { exportAssignedStudentsXLSX, exportRequestReviewsXLSX, downloadWorkbookXLSX, sanitizeCellValue } from "./src/services/dashboard-service.js";
 
     // 1. Synchronized Local Requests Store
     let localRequests = JSON.parse(localStorage.getItem("campusgate_event_requests") || "null");
@@ -253,6 +374,13 @@
       localStorage.setItem("campusgate_event_requests", JSON.stringify(localRequests));
     }
 
+    // 1b. Synchronized Local Events Catalog
+    let localEvents = JSON.parse(localStorage.getItem("campusgate_events_catalog") || "null");
+    if (!localEvents || localEvents.length < 5) {
+      localEvents = [...EVENTS];
+      localStorage.setItem("campusgate_events_catalog", JSON.stringify(localEvents));
+    }
+
     // 2. DOM Elements
     const proctorSelect = document.getElementById("proctorSelect");
     const proctorAvatar = document.getElementById("proctorAvatar");
@@ -264,11 +392,18 @@
     const ineligibleCountVal = document.getElementById("ineligibleCountVal");
     const returnedCountVal = document.getElementById("returnedCountVal");
 
+    const cardAssignedStudents = document.getElementById("cardAssignedStudents");
+    const cardPendingReviews = document.getElementById("cardPendingReviews");
+    const cardIneligible = document.getElementById("cardIneligible");
+    const cardReturned = document.getElementById("cardReturned");
+
+    const proctorEventsTbody = document.getElementById("proctorEventsTbody");
     const proctorRequestsTbody = document.getElementById("proctorRequestsTbody");
     const assignedStudentsTbody = document.getElementById("assignedStudentsTbody");
 
     const filterDept = document.getElementById("filterDept");
     const filterStatus = document.getElementById("filterStatus");
+    const resetFiltersBtn = document.getElementById("resetFiltersBtn");
 
     const reviewModal = document.getElementById("reviewModal");
     const closeReviewModal = document.getElementById("closeReviewModal");
@@ -279,7 +414,22 @@
     const reviewRemarks = document.getElementById("reviewRemarks");
     const proctorSignOutBtn = document.getElementById("proctorSignOutBtn");
 
+    const studentPerformanceModal = document.getElementById("studentPerformanceModal");
+    const closeStudentPerfModal = document.getElementById("closeStudentPerfModal");
+    const dismissStudentPerfModal = document.getElementById("dismissStudentPerfModal");
+    const studentPerfModalContent = document.getElementById("studentPerfModalContent");
+
+    const createEventModal = document.getElementById("createEventModal");
+    const openCreateEventModalBtn = document.getElementById("openCreateEventModalBtn");
+    const closeCreateEventModal = document.getElementById("closeCreateEventModal");
+    const cancelEventModalBtn = document.getElementById("cancelEventModalBtn");
+    const proctorEventForm = document.getElementById("proctorEventForm");
+    const eventModalTitle = document.getElementById("eventModalTitle");
+    const editEventId = document.getElementById("editEventId");
+
     const exportProctorStudentsBtn = document.getElementById("exportProctorStudentsBtn");
+    const exportEligibleStudentsBtn = document.getElementById("exportEligibleStudentsBtn");
+    const exportIneligibleStudentsBtn = document.getElementById("exportIneligibleStudentsBtn");
     const exportProctorReviewsBtn = document.getElementById("exportProctorReviewsBtn");
 
     // 3. User Session Support
@@ -299,8 +449,8 @@
 
     // 4. Render Proctor View
     function renderProctorView() {
-      // Reload fresh state from storage
       localRequests = JSON.parse(localStorage.getItem("campusgate_event_requests") || "[]");
+      localEvents = JSON.parse(localStorage.getItem("campusgate_events_catalog") || "[]");
 
       const proctorId = proctorSelect.value;
       const proctor = PROCTORS.find(p => p.uid === proctorId) || PROCTORS[0];
@@ -309,7 +459,7 @@
       proctorNameDisplay.textContent = proctor.name;
       proctorMeta.innerHTML = `Department: <strong>${proctor.department}</strong> &bull; Designation: <strong>${proctor.designation}</strong>`;
 
-      // Filter assigned students
+      // Filter assigned students (exact 15 students for Proctor 1 / Proctor 2)
       const assigned = STUDENTS.filter(s => s.proctorId === proctorId);
       assignedCountVal.textContent = assigned.length;
 
@@ -318,7 +468,6 @@
       ineligibleCountVal.textContent = ineligibles.length;
 
       // Filter requests belonging to this proctor's assigned students only!
-      // Strict role isolation: Proctors can ONLY inspect and review their assigned students
       const assignedRolls = new Set(assigned.map(s => s.roll));
       let pRequests = localRequests.filter(r => assignedRolls.has(r.studentRoll));
 
@@ -336,7 +485,32 @@
       pendingReviewsVal.textContent = pRequests.filter(r => r.status === "Submitted" || r.status === "Under Proctor Review").length;
       returnedCountVal.textContent = pRequests.filter(r => r.status === "Returned for Correction").length;
 
-      // Render Requests
+      // 4a. Render Events Catalog in Proctor Portal
+      proctorEventsTbody.innerHTML = localEvents.map(evt => `
+        <tr>
+          <td><strong>${evt.eventCode}</strong></td>
+          <td>
+            <div style="font-weight: 600; color: var(--color-slate-900);">${evt.title}</div>
+            <div style="font-size: 0.785rem; color: var(--color-blue-700);">${evt.organizer}</div>
+          </td>
+          <td><span class="cg-status-pill status-eligible" style="font-size: 0.75rem;">${evt.category}</span></td>
+          <td><small>${evt.startDate} to ${evt.endDate}</small></td>
+          <td>${evt.venue}, ${evt.city}</td>
+          <td>
+            <span class="cg-status-pill ${evt.status === 'Published' ? 'status-approved' : 'status-unavailable'}">${evt.status}</span>
+          </td>
+          <td>
+            <div style="display: flex; gap: 0.35rem; align-items: center;">
+              <button class="cg-btn-sm cg-btn-outline edit-event-btn" data-id="${evt.id}" style="padding: 2px 8px; font-size: 0.75rem;">Edit</button>
+              <button class="cg-btn-sm ${evt.status === 'Published' ? 'cg-btn-outline' : 'cg-btn-primary'} toggle-event-btn" data-id="${evt.id}" style="padding: 2px 8px; font-size: 0.75rem;">
+                ${evt.status === 'Published' ? 'Unpublish' : 'Publish'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+
+      // 4b. Render Requests Table
       if (pRequests.length === 0) {
         proctorRequestsTbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--color-slate-400); padding: 1.5rem;">No requests found matching current filters.</td></tr>`;
       } else {
@@ -380,7 +554,7 @@
         }).join("");
       }
 
-      // Render Assigned Students Roster
+      // 4c. Render Assigned Students Roster
       assignedStudentsTbody.innerHTML = assigned.map(s => {
         let pct = "Unavailable";
         let eligBadge = `<span class="cg-status-pill status-unavailable">UNAVAILABLE</span>`;
@@ -399,7 +573,7 @@
         }
 
         return `
-          <tr>
+          <tr class="student-row-item" data-roll="${s.roll}" style="cursor: pointer;">
             <td><strong>${s.roll}</strong></td>
             <td>${s.name}</td>
             <td>${s.dept} - ${s.sec}</td>
@@ -407,6 +581,11 @@
             <td><strong>${pct}</strong></td>
             <td><small>${s.asOf || 'N/A'}</small></td>
             <td>${eligBadge}</td>
+            <td>
+              <button class="cg-btn-sm cg-btn-outline view-perf-btn" data-roll="${s.roll}" style="padding: 2px 8px; font-size: 0.75rem;">
+                View Performance
+              </button>
+            </td>
           </tr>
         `;
       }).join("");
@@ -430,9 +609,282 @@
           reviewModal.classList.add("active");
         });
       });
+
+      // Bind student performance view buttons and row clicks
+      document.querySelectorAll(".view-perf-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const roll = btn.getAttribute("data-roll");
+          openStudentPerformanceDossier(roll);
+        });
+      });
+
+      document.querySelectorAll(".student-row-item").forEach(tr => {
+        tr.addEventListener("click", () => {
+          const roll = tr.getAttribute("data-roll");
+          openStudentPerformanceDossier(roll);
+        });
+      });
+
+      // Bind event catalog actions (Edit and Publish/Unpublish)
+      document.querySelectorAll(".edit-event-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const evtId = btn.getAttribute("data-id");
+          const evt = localEvents.find(e => e.id === evtId);
+          if (!evt) return;
+
+          eventModalTitle.textContent = "Edit Technical Event";
+          editEventId.value = evt.id;
+          document.getElementById("eventCodeInput").value = evt.eventCode;
+          document.getElementById("eventCategorySelect").value = evt.category;
+          document.getElementById("eventTitleInput").value = evt.title;
+          document.getElementById("eventOrganizerInput").value = evt.organizer;
+          document.getElementById("eventCityInput").value = evt.city;
+          document.getElementById("eventVenueInput").value = evt.venue;
+          document.getElementById("eventStartDateInput").value = evt.startDate;
+          document.getElementById("eventEndDateInput").value = evt.endDate;
+          document.getElementById("eventDescriptionInput").value = evt.description;
+
+          createEventModal.classList.add("active");
+        });
+      });
+
+      document.querySelectorAll(".toggle-event-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const evtId = btn.getAttribute("data-id");
+          const evt = localEvents.find(e => e.id === evtId);
+          if (!evt) return;
+
+          evt.status = evt.status === "Published" ? "Draft" : "Published";
+          localStorage.setItem("campusgate_events_catalog", JSON.stringify(localEvents));
+          renderProctorView();
+        });
+      });
     }
 
-    // 5. Excel (.xlsx) Downloads via SheetJS
+    // 5. Open Detailed Student Performance Modal
+    function openStudentPerformanceDossier(roll) {
+      const student = STUDENTS.find(s => s.roll === roll);
+      if (!student) return;
+
+      const proctor = PROCTORS.find(p => p.uid === student.proctorId) || PROCTORS[0];
+      const studentReqs = localRequests.filter(r => r.studentRoll === roll);
+
+      let pctVal = "Unavailable";
+      let eligText = "UNAVAILABLE";
+      let eligStyle = "color: #64748b; background: #f1f5f9;";
+
+      if (!student.missingAttendance && student.conducted > 0) {
+        const num = ((student.attended / student.conducted) * 100).toFixed(1);
+        pctVal = `${num}%`;
+        if (student.isStale) {
+          eligText = "STALE DATA (>30 DAYS)";
+          eligStyle = "color: #b45309; background: #fef3c7;";
+        } else if (num >= 75) {
+          eligText = "ELIGIBLE (≥75% Attendance)";
+          eligStyle = "color: #16a34a; background: #dcfce7;";
+        } else {
+          eligText = "INELIGIBLE (<75% Attendance)";
+          eligStyle = "color: #dc2626; background: #fee2e2;";
+        }
+      }
+
+      studentPerfModalContent.innerHTML = `
+        <div style="background: #f8fafc; border: 1px solid var(--color-slate-200); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <div>
+              <h4 style="margin: 0; font-size: 1.15rem; color: #0f172a;">${student.name}</h4>
+              <div style="font-size: 0.85rem; color: #475569; margin-top: 0.2rem;">
+                Roll Number: <strong>${student.roll}</strong> &bull; Dept: <strong>${student.dept}</strong> &bull; Section: <strong>${student.sec}</strong>
+              </div>
+            </div>
+            <span style="padding: 0.3rem 0.75rem; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; ${eligStyle}">
+              ${eligText}
+            </span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 1rem;">
+            <div style="background: #ffffff; padding: 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Attendance %</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-top: 0.2rem;">${pctVal}</div>
+            </div>
+            <div style="background: #ffffff; padding: 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Classes Attended / Conducted</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #1e293b; margin-top: 0.25rem;">
+                ${student.missingAttendance ? 'Missing Data' : `${student.attended} / ${student.conducted}`}
+              </div>
+            </div>
+            <div style="background: #ffffff; padding: 0.75rem; border-radius: 6px; border: 1px solid #e2e8f0; text-align: center;">
+              <div style="font-size: 0.75rem; color: #64748b; font-weight: 600;">Data Freshness</div>
+              <div style="font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-top: 0.35rem;">
+                ${student.asOf || 'N/A'} ${student.isStale ? '(Outdated)' : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h5 style="margin: 0.75rem 0 0.5rem; font-size: 0.925rem; color: #1e293b;">Event Participation History (${studentReqs.length} Requests):</h5>
+        ${studentReqs.length === 0 ? `
+          <div style="text-align: center; color: #94a3b8; padding: 1.25rem; background: #f8fafc; border-radius: 6px;">
+            No event participation requests submitted yet by this student.
+          </div>
+        ` : `
+          <div style="max-height: 180px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 6px;">
+            <table class="cg-table" style="font-size: 0.8rem;">
+              <thead>
+                <tr>
+                  <th>Ref #</th>
+                  <th>Event</th>
+                  <th>Dates</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${studentReqs.map(r => `
+                  <tr>
+                    <td><strong>${r.ref}</strong></td>
+                    <td>${r.title}</td>
+                    <td>${r.startDate} to ${r.endDate}</td>
+                    <td><span class="cg-status-pill ${r.status === 'Approved' ? 'status-approved' : (r.status === 'Rejected' ? 'status-rejected' : 'status-submitted')}">${r.status}</span></td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+        `}
+      `;
+
+      studentPerformanceModal.classList.add("active");
+    }
+
+    // 6. Interactive Clickable Metric Cards Handlers
+    function clearSelectedCards() {
+      [cardAssignedStudents, cardPendingReviews, cardIneligible, cardReturned].forEach(c => c?.classList.remove("cg-card-selected"));
+    }
+
+    if (cardAssignedStudents) {
+      cardAssignedStudents.addEventListener("click", () => {
+        clearSelectedCards();
+        cardAssignedStudents.classList.add("cg-card-selected");
+        filterDept.value = "ALL";
+        filterStatus.value = "ALL";
+        renderProctorView();
+        document.getElementById("assignedRosterSection")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    if (cardPendingReviews) {
+      cardPendingReviews.addEventListener("click", () => {
+        clearSelectedCards();
+        cardPendingReviews.classList.add("cg-card-selected");
+        filterStatus.value = "Submitted";
+        renderProctorView();
+        document.getElementById("requestsSection")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    if (cardIneligible) {
+      cardIneligible.addEventListener("click", () => {
+        clearSelectedCards();
+        cardIneligible.classList.add("cg-card-selected");
+        document.getElementById("assignedRosterSection")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    if (cardReturned) {
+      cardReturned.addEventListener("click", () => {
+        clearSelectedCards();
+        cardReturned.classList.add("cg-card-selected");
+        filterStatus.value = "Returned for Correction";
+        renderProctorView();
+        document.getElementById("requestsSection")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+
+    if (resetFiltersBtn) {
+      resetFiltersBtn.addEventListener("click", () => {
+        clearSelectedCards();
+        filterDept.value = "ALL";
+        filterStatus.value = "ALL";
+        renderProctorView();
+      });
+    }
+
+    // 7. Modal Handlers
+    if (closeStudentPerfModal) closeStudentPerfModal.addEventListener("click", () => studentPerformanceModal.classList.remove("active"));
+    if (dismissStudentPerfModal) dismissStudentPerfModal.addEventListener("click", () => studentPerformanceModal.classList.remove("active"));
+
+    if (openCreateEventModalBtn) {
+      openCreateEventModalBtn.addEventListener("click", () => {
+        eventModalTitle.textContent = "Create Technical Event Listing";
+        editEventId.value = "";
+        proctorEventForm.reset();
+        document.getElementById("eventCodeInput").value = `EVT-PR-${Date.now().toString().slice(-4)}`;
+        createEventModal.classList.add("active");
+      });
+    }
+
+    if (closeCreateEventModal) closeCreateEventModal.addEventListener("click", () => createEventModal.classList.remove("active"));
+    if (cancelEventModalBtn) cancelEventModalBtn.addEventListener("click", () => createEventModal.classList.remove("active"));
+
+    if (proctorEventForm) {
+      proctorEventForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const evtId = editEventId.value;
+        const code = document.getElementById("eventCodeInput").value.trim();
+        const cat = document.getElementById("eventCategorySelect").value;
+        const title = document.getElementById("eventTitleInput").value.trim();
+        const organizer = document.getElementById("eventOrganizerInput").value.trim();
+        const city = document.getElementById("eventCityInput").value.trim();
+        const venue = document.getElementById("eventVenueInput").value.trim();
+        const startDate = document.getElementById("eventStartDateInput").value;
+        const endDate = document.getElementById("eventEndDateInput").value;
+        const desc = document.getElementById("eventDescriptionInput").value.trim();
+
+        if (evtId) {
+          // Update
+          const target = localEvents.find(ev => ev.id === evtId);
+          if (target) {
+            target.eventCode = code;
+            target.category = cat;
+            target.title = title;
+            target.organizer = organizer;
+            target.city = city;
+            target.venue = venue;
+            target.startDate = startDate;
+            target.endDate = endDate;
+            target.description = desc;
+          }
+        } else {
+          // Create new
+          const newEvt = {
+            id: `evt_custom_${Date.now()}`,
+            eventCode: code,
+            title,
+            organizer,
+            category: cat,
+            description: desc,
+            venue,
+            city,
+            startDate,
+            endDate,
+            registrationDeadline: startDate,
+            status: "Published",
+            publishedAt: new Date().toISOString().split("T")[0],
+            createdBy: proctorSelect.value
+          };
+          localEvents.unshift(newEvt);
+        }
+
+        localStorage.setItem("campusgate_events_catalog", JSON.stringify(localEvents));
+        createEventModal.classList.remove("active");
+        proctorEventForm.reset();
+        renderProctorView();
+        alert("Technical Event successfully saved and published into portal catalog!");
+      });
+    }
+
+    // 8. Staff-Only Excel (.xlsx) Downloads via SheetJS
     exportProctorStudentsBtn.addEventListener("click", () => {
       const proctorId = proctorSelect.value;
       const proctor = PROCTORS.find(p => p.uid === proctorId) || PROCTORS[0];
@@ -440,6 +892,28 @@
       const safeName = proctor.name.replace(/[^a-zA-Z0-9]/g, '_');
       exportAssignedStudentsXLSX(assigned, `${safeName}_Assigned_Students.xlsx`);
     });
+
+    if (exportEligibleStudentsBtn) {
+      exportEligibleStudentsBtn.addEventListener("click", () => {
+        const proctorId = proctorSelect.value;
+        const proctor = PROCTORS.find(p => p.uid === proctorId) || PROCTORS[0];
+        const assigned = STUDENTS.filter(s => s.proctorId === proctorId);
+        const eligible = assigned.filter(s => !s.missingAttendance && !s.isStale && s.conducted > 0 && ((s.attended / s.conducted) * 100) >= 75);
+        const safeName = proctor.name.replace(/[^a-zA-Z0-9]/g, '_');
+        exportAssignedStudentsXLSX(eligible, `${safeName}_Eligible_Students.xlsx`);
+      });
+    }
+
+    if (exportIneligibleStudentsBtn) {
+      exportIneligibleStudentsBtn.addEventListener("click", () => {
+        const proctorId = proctorSelect.value;
+        const proctor = PROCTORS.find(p => p.uid === proctorId) || PROCTORS[0];
+        const assigned = STUDENTS.filter(s => s.proctorId === proctorId);
+        const ineligible = assigned.filter(s => s.missingAttendance || s.isStale || (s.conducted > 0 && ((s.attended / s.conducted) * 100) < 75));
+        const safeName = proctor.name.replace(/[^a-zA-Z0-9]/g, '_');
+        exportAssignedStudentsXLSX(ineligible, `${safeName}_Ineligible_Students.xlsx`);
+      });
+    }
 
     exportProctorReviewsBtn.addEventListener("click", () => {
       const proctorId = proctorSelect.value;
@@ -457,7 +931,7 @@
     filterDept.addEventListener("change", renderProctorView);
     filterStatus.addEventListener("change", renderProctorView);
 
-    // 6. Handle Proctor Review Recommendation
+    // 9. Handle Proctor Review Recommendation
     document.getElementById("proctorReviewForm").addEventListener("submit", (e) => {
       e.preventDefault();
       const reqId = reviewTargetReqId.value;

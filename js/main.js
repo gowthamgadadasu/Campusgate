@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initPasswordToggles();
   initAuthForms();
   initForgotPasswordModal();
+  initGoogleAuth();
 });
 
 /* --------------------------------------------------------------------------
@@ -376,4 +377,90 @@ function initForgotPasswordModal() {
       if (emailInput) emailInput.value = '';
     });
   }
+}
+
+/* --------------------------------------------------------------------------
+   7. Real Firebase Google Sign-In Integration
+   -------------------------------------------------------------------------- */
+function initGoogleAuth() {
+  const googleButtons = document.querySelectorAll('.cg-btn-google');
+  if (googleButtons.length === 0) return;
+
+  googleButtons.forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg class="cg-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="2" x2="12" y2="6"></line>
+          <line x1="12" y1="18" x2="12" y2="22"></line>
+          <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+          <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+          <line x1="2" y1="12" x2="6" y2="12"></line>
+          <line x1="18" y1="12" x2="22" y2="12"></line>
+        </svg>
+        <span>Connecting to Google...</span>
+      `;
+
+      try {
+        const { signInWithGoogle } = await import('../src/services/auth-service.js');
+        const userProfile = await signInWithGoogle();
+
+        const portalRole = btn.getAttribute('data-portal-role');
+        const detectedRole = userProfile.role || 'student';
+
+        // Check if user is logging in on a specific portal with a mismatched role
+        if (portalRole && portalRole !== detectedRole) {
+          const roleNames = {
+            student: 'Student Portal (student-login.html)',
+            proctor: 'Proctor Portal (proctor-login.html)',
+            incharge: 'Technical In-Charge Portal (incharge-login.html)'
+          };
+          showToast(
+            'Role Notice',
+            `Signed in as ${userProfile.name} (${detectedRole.toUpperCase()}). Please sign in via the ${roleNames[detectedRole]}.`,
+            'warning'
+          );
+          btn.disabled = false;
+          btn.innerHTML = originalHtml;
+          return;
+        }
+
+        showToast('Google Sign-In Successful', `Welcome, ${userProfile.name}! Redirecting to dashboard...`, 'success');
+
+        setTimeout(() => {
+          if (detectedRole === 'incharge') {
+            window.location.href = 'incharge-dashboard.html';
+          } else if (detectedRole === 'proctor') {
+            window.location.href = 'proctor-dashboard.html';
+          } else {
+            window.location.href = 'student-dashboard.html';
+          }
+        }, 1200);
+
+      } catch (err) {
+        console.error('Firebase Google Sign-In error:', err);
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+
+        // Graceful error classification
+        if (err.code === 'auth/popup-closed-by-user') {
+          showToast('Sign-In Cancelled', 'The Google sign-in window was closed before completion.', 'warning');
+        } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/configuration-not-found') {
+          showToast(
+            'Google Provider Notice',
+            'Firebase Google Sign-In provider needs to be enabled in your Firebase Console under Authentication > Sign-in method.',
+            'error'
+          );
+        } else {
+          showToast(
+            'Google Sign-In Notice',
+            `Authentication message: ${err.message || 'Unable to connect with Google. Try direct portal login.'}`,
+            'error'
+          );
+        }
+      }
+    });
+  });
 }

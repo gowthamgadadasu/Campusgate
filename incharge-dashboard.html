@@ -52,6 +52,7 @@
       </div>
       <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
         <button class="cg-btn cg-btn-outline" id="exportAttendanceBtn">📥 Export Attendance (.xlsx)</button>
+        <button class="cg-btn cg-btn-outline" id="exportAppliedReportBtn" style="color: #2563eb; border-color: #93c5fd;">📊 Export Applied vs Not-Applied (Multi-Sheet .xlsx)</button>
         <button class="cg-btn cg-btn-primary" id="exportRequestsBtn">📥 Export Approvals (.xlsx)</button>
       </div>
     </div>
@@ -247,7 +248,7 @@
   <script type="module">
     import { STUDENTS, PROCTORS, INCHARGE, EVENTS, REQUESTS_DATA } from "./src/seed/seed-data.js";
     import { parseCSV, validateAttendancePreview } from "./src/services/attendance-service.js";
-    import { exportAttendanceXLSX, exportRequestsXLSX } from "./src/services/dashboard-service.js";
+    import { exportAttendanceXLSX, exportRequestsXLSX, exportInChargeAppliedReportXLSX } from "./src/services/dashboard-service.js";
 
     // 1. Synchronized Local Store
     let localRequests = JSON.parse(localStorage.getItem("campusgate_event_requests") || "null");
@@ -620,6 +621,14 @@
     exportAttendanceBtn.addEventListener("click", () => {
       exportAttendanceXLSX(STUDENTS, "CampusGate_Attendance_Roster.xlsx");
     });
+
+    const exportAppliedReportBtn = document.getElementById("exportAppliedReportBtn");
+    if (exportAppliedReportBtn) {
+      exportAppliedReportBtn.addEventListener("click", () => {
+        const threshold = Number(thresholdInput.value) || 75;
+        exportInChargeAppliedReportXLSX(STUDENTS, localRequests, threshold, "CampusGate_InCharge_Applied_NotApplied.xlsx");
+      });
+    }
 
     exportRequestsBtn.addEventListener("click", () => {
       exportRequestsXLSX(localRequests, "CampusGate_Event_Approvals.xlsx");
